@@ -32,8 +32,19 @@ async function run() {
         const TaskerDB = client.db('TaskerBeta')
         const usersCollection = TaskerDB.collection('users')
 
-        app.post('/createUser', (req, res) => {
-            console.log(req.body)
+        app.post('/createUser', async (req, res) => {
+            // console.log(req.body)
+            const userData = req.body
+            const query = { email: userData.email }
+            const findExistUser = await usersCollection.findOne(query)
+            const existEmail = findExistUser?.email
+            if (userData.email === existEmail) {
+                return
+            } else {
+                const result = await usersCollection.insertOne(userData);
+                res.status(200).send(result);
+            }
+
         })
 
 
