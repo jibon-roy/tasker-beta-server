@@ -7,7 +7,7 @@ const port = process.env.PORT | 5000
 
 app.use(
     cors({
-        origin: ['http://localhost:5173', 'http://localhost:5174',],
+        origin: ['https://tasker-beta.web.app/', 'http://localhost:5173', 'http://localhost:5174',],
     }),
 )
 app.use(express.json())
@@ -31,6 +31,7 @@ async function run() {
 
         const TaskerDB = client.db('TaskerBeta')
         const usersCollection = TaskerDB.collection('users')
+        const tasksCollection = TaskerDB.collection('tasks')
 
         app.post('/createUser', async (req, res) => {
             // console.log(req.body)
@@ -45,6 +46,19 @@ async function run() {
                 res.status(200).send(result);
             }
 
+        })
+
+        app.post('/postTask', async (req, res) => {
+            const task = req.body
+            const result = await tasksCollection.insertOne(task)
+            res.status(200).send(result);
+        })
+
+        app.get('/tasks/:user', async (req, res) => {
+            const user = req.params.user
+            const query = { user: user }
+            const result = await tasksCollection.find(query).toArray()
+            res.status(200).send(result);
         })
 
 
